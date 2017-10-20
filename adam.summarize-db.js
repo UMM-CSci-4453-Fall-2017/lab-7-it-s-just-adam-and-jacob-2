@@ -1,10 +1,13 @@
-mysql = require('mysql');
+var mysql = require('mysql');
+var credentials = require('./credentials.json');
+credentials.host="ids";
 var connection = mysql.createConnection(credentials);
 var data={};
 var processed={};
 
 sql = "SHOW DATABASES";
-connection.query(sql,function(err,rows,fields){ //connection.connect() is run automatically for a query
+connection.query(sql,function(err,rows,fields){  
+	//connection.connect() is run automatically for a query
 	if(err){
 		console.log('Error looking up databases');
 		connection.end();

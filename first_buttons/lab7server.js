@@ -5,32 +5,24 @@ var mysql = require('mysql');
 var credentials = require('./credentials.json');
 credentials.host="ids";
 var connection = mysql.createConnection(credentials);
-var data={};
-var processed={};
+
 var buttons = [];
 var index = 0;
 
 //sql = "SELECT buttonID,concat('{buttonID:'`buttonID`, ',left:'`left`,'}') as list FROM till_buttons GROUP BY buttonID;"
-sql = "SELECT buttonID,concat('{buttonID:',`buttonID`, ',left:',`left`,'}') as list FROM institutional_casey.till_buttons GROUP BY buttonID;"
-connection.query(sql,function(err,rows,fields){
-        //connection.connect() is run automatically for a query
-        if(err){
-                console.log('Error looking up databases');
-                connection.end();
-		console.log(sql);
-	//	console.log(err);
-        } else {
-                process_buttons(rows);
-        }
-});
+//sql = "SELECT buttonID,concat('{buttonID:',`buttonID`, ',left:',`left`,',top:',`top`,',width:',`width`,',label:',`label`,',invID:',`invID`,'}') as list FROM institutional_casey.till_buttons GROUP BY buttonID;"
+//sql = "SELECT concat('{','"'buttonID'"':,`buttonID`,'"'left'"':,`left`,'"'top'"':,`top`,'"'width'"':,`width`) as list FROM institutional_casey.till_buttons;"
+sql = "select * from institutional_casey.till_buttons;"
+console.log(sql);
+
 function process_buttons(rows){
 	while(index < rows.length){
-		var button = rows[index].list;
+		var button = rows[index];
 		buttons.push(button);
 		console.log(index);
 		index++;
 	}
-	console.log(buttons);
+	console.log(buttons[1]);
 }
 
 
@@ -39,7 +31,21 @@ console.log(buttons);
 
 app.use(express.static(__dirname + '/public')); //Serves the web pages
 app.get("/buttons",function(req,res){ // handles the /buttons API
-  res.send(buttons);
+	var sql = "select * from institutional_casey.till_buttons;"
+	connection.query(sql,(function(res){ return function(err,rows,fields){
+        //connection.connect() is run automatically for a query
+        if(err){
+                console.log('Error looking up databases');
+                connection.end();
+                console.log(sql);
+        //      console.log(err);
+        } else {
+		res.send(rows);
+//		console.log(rows);
+//                process_buttons(rows);
+        }
+}})(res));
+//	res.send(buttons);
 });
 
 app.listen(port);
